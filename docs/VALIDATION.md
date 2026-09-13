@@ -35,7 +35,7 @@ The final doctor failure is retained here rather than represented as success. In
 - Live MemWal authenticated remember/recall and full cross-process persistence: not tested; no account/delegate provided. Follow WALRUS_MEMORY.md after configuring credentials. Mocked completion/failure behavior is covered.
 - A registered wallet SuiNS default name: not tested for a user wallet; no registration performed.
 - Missing-binary downloads for Sui/Walrus: scripts are based on verified official install commands; no forced system upgrade or Walrus install was performed.
-- GitHub-hosted CI execution and repository branch protection: workflow files are supplied; this repository has not been published to a remote.
+- GitHub-hosted CI execution and repository branch protection: workflow files are supplied; the repository is now published at https://github.com/justbiar/suibasecamp; hosted workflow results are separate from the local checks above.
 - Optional Docker scanner image execution: local Gitleaks passed; hosted workflow has not run here.
 
 No transfers, swaps, on-chain spending enforcement, Nautilus, AWS resources or custom Seal encryption were implemented. A production deployment still needs its own operational review and live credential-dependent smoke tests.

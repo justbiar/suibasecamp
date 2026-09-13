@@ -34,8 +34,8 @@ flowchart TD
 Require Git and Node **22.22.2 or newer**. The toolchain needs a newer Node 22 patch than the SDK alone. `.nvmrc` pins a tested Node 22 release.
 
 ```bash
-git clone <your-repository-url>
-cd sui-local-agent
+git clone https://github.com/justbiar/suibasecamp.git
+cd suibasecamp
 nvm install
 nvm use
 ./setup.sh
