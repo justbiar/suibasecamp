@@ -1,0 +1,4 @@
+[extend]
+useDefault = true
+[allowlist]
+paths = ["node_modules/", "vendor/", "dist/", "package-lock.json"]
