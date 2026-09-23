@@ -52,6 +52,7 @@ export function createOpenRouter(c: Config): ModelClient {
       throw new Error(
         'OpenRouter request failed. Check OPENROUTER_API_KEY, connectivity and tool support. Set OPENROUTER_MODEL to an available tool-capable model if openrouter/free is unavailable. Cause: ' +
           (cause instanceof Error ? cause.message : String(cause)),
+        { cause },
       );
     }
   };
