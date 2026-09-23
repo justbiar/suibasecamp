@@ -1,0 +1,5 @@
+[package]
+name = "agent_profile"
+edition = "2024"
+
+[dependencies]

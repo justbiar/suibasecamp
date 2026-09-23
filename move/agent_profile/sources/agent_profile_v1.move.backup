@@ -1,0 +1,63 @@
+module agent_profile::agent_profile;
+
+use std::string::String;
+use sui::object::{Self, UID};
+use sui::transfer;
+use sui::tx_context::{Self, TxContext};
+
+public struct AgentProfile has key, store {
+    id: UID,
+    owner: address,
+    wallet: address,
+    suins_name: String,
+    memory_namespace: String,
+    endpoint: String,
+    version: String,
+}
+
+public fun create(
+    wallet: address,
+    suins_name: String,
+    memory_namespace: String,
+    endpoint: String,
+    version: String,
+    ctx: &mut TxContext,
+) {
+    let sender = tx_context::sender(ctx);
+
+    let profile = AgentProfile {
+        id: object::new(ctx),
+        owner: sender,
+        wallet,
+        suins_name,
+        memory_namespace,
+        endpoint,
+        version,
+    };
+
+    transfer::transfer(profile, sender);
+}
+
+public fun owner(profile: &AgentProfile): address {
+    profile.owner
+}
+
+public fun wallet(profile: &AgentProfile): address {
+    profile.wallet
+}
+
+public fun suins_name(profile: &AgentProfile): &String {
+    &profile.suins_name
+}
+
+public fun memory_namespace(profile: &AgentProfile): &String {
+    &profile.memory_namespace
+}
+
+public fun endpoint(profile: &AgentProfile): &String {
+    &profile.endpoint
+}
+
+public fun version(profile: &AgentProfile): &String {
+    &profile.version
+}
