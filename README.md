@@ -49,7 +49,7 @@ Optional setup flags: `./setup.sh --with-sui --with-skills --with-walrus`. These
 
 ## Credentials and configuration
 
-Run `npm run set-key` to store `OPENROUTER_API_KEY` without an editor: it reads the key with the terminal echo off, replaces the line in `.env`, and prints nothing back. Editing `.env` by hand does the same job.
+Run `npm run set-key` to fill in `.env` without an editor. It asks for the OpenRouter key and, optionally, the Walrus Memory account id and delegate key; press Enter to skip any of them. Secrets are read with the terminal echo off and never printed back, and it refuses to leave the Walrus pair half-set. Editing `.env` by hand does the same job.
 
 Only `OPENROUTER_API_KEY` is required for AI tool selection. Without it, all local slash commands remain available. OpenRouter receives chat input and tool schemas/status; it does not receive the application wallet key or recalled memory text. Ordinary supported requests route locally and may not contact the model at all.
 
