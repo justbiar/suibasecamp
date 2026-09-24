@@ -49,6 +49,9 @@ const definitions = {
   },
 };
 export type ToolName = keyof typeof definitions;
+/* The capabilities a registration declares, so the directory entry cannot drift
+   from the tools this agent actually implements. */
+export const TOOL_NAMES = Object.keys(definitions) as ToolName[];
 export class ToolRegistry {
   constructor(private c: Context) {}
   available(): ChatCompletionTool[] {

@@ -14,6 +14,14 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ['**/*.mjs'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        // standard globals since Node 18; this project requires 22
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+      },
+    },
   },
 );
