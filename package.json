@@ -21,6 +21,7 @@
     "test": "npm run test:unit",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "set-key": "node scripts/set-key.mjs",
     "doctor": "node scripts/check-node.mjs && tsx src/index.ts doctor",
     "setup": "bash setup.sh",
     "deps:check": "ncu",
