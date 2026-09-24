@@ -49,6 +49,8 @@ Optional setup flags: `./setup.sh --with-sui --with-skills --with-walrus`. These
 
 ## Credentials and configuration
 
+Run `npm run set-key` to store `OPENROUTER_API_KEY` without an editor: it reads the key with the terminal echo off, replaces the line in `.env`, and prints nothing back. Editing `.env` by hand does the same job.
+
 Only `OPENROUTER_API_KEY` is required for AI tool selection. Without it, all local slash commands remain available. OpenRouter receives chat input and tool schemas/status; it does not receive the application wallet key or recalled memory text. Ordinary supported requests route locally and may not contact the model at all.
 
 Persistent memory additionally needs **both** `MEMWAL_ACCOUNT_ID` and `MEMWAL_PRIVATE_KEY`. The latter is a registered **delegate** key, not your account owner's wallet key. Create credentials via the [official Walrus Memory account/delegate guide](https://docs.wal.app/walrus-memory/contract/delegate-key-management).
