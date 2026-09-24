@@ -8,11 +8,14 @@ export async function remember(c: Context, text: string) {
     c.memory.remember(text),
     c.config.REQUEST_TIMEOUT_MS,
   );
+  // Persisting to Walrus embeds the text, Seal-encrypts it and writes a blob.
+  // That measured about 32s against the staging relayer, past the 30s default,
+  // so writes that had actually landed were reported as failures. The job gets
+  // a budget of its own rather than the timeout used for ordinary reads.
+  const jobTimeoutMs = Math.max(c.config.REQUEST_TIMEOUT_MS * 4, 120_000);
   await bounded(
-    c.memory.waitForRememberJob(job.job_id, {
-      timeoutMs: c.config.REQUEST_TIMEOUT_MS,
-    }),
-    c.config.REQUEST_TIMEOUT_MS + 1000,
+    c.memory.waitForRememberJob(job.job_id, { timeoutMs: jobTimeoutMs }),
+    jobTimeoutMs + 1000,
   );
   return {
     success: true,
