@@ -44,13 +44,7 @@ export function routeLocal(input: string):
     return { name: 'recall', args: { query: value } };
   if (value === '/balance' || /\b(?:my balance|wallet balance)\b/i.test(value))
     return { name: 'get_balance', args: {} };
-  if (
-    value === '/identity' ||
-    /^\/?(?:identity|identify|whoami)$/i.test(value.trim()) ||
-    /who (?:am i|are you)(?: on suins)?\b|\bmy (?:suins|on-chain) (?:name|identity)\b/i.test(
-      value,
-    )
-  )
+  if (value === '/identity' || /who are you on suins/i.test(value))
     return { name: 'get_agent_suins_identity', args: {} };
   const resolve = value.match(/^(?:\/resolve|resolve)\s+([a-z0-9._-]+\.sui)$/i);
   if (resolve?.[1])
