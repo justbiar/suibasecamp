@@ -13,6 +13,7 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { Transaction } from '@mysten/sui/transactions';
 import { TOOL_NAMES } from '../src/agent/tool-registry.js';
+import { existingProfiles, successfulDigest } from './registration-check.mjs';
 
 // doctor inspects the local install; it is not a capability another party
 // could call, so the directory entry leaves it out.
@@ -32,7 +33,9 @@ let wallet;
 try {
   wallet = JSON.parse(readFileSync(walletFile, 'utf8'));
 } catch {
-  console.error(`No wallet at ${walletFile}. Run npm run agent and create one first.`);
+  console.error(
+    `No wallet at ${walletFile}. Run npm run agent and create one first.`,
+  );
   process.exit(1);
 }
 const keypair = Ed25519Keypair.fromSecretKey(wallet.secretKey);
@@ -68,21 +71,28 @@ const have = BigInt(balance?.balance ?? balance ?? 0);
 
 // The directory itself reads profiles over GraphQL, and listOwnedObjects
 // returned the type inconsistently here, so ask the same way the directory does.
-const GRAPHQL = process.env.SUI_GRAPHQL_URL || `https://graphql.${network}.sui.io/graphql`;
-const existing = await fetch(GRAPHQL, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    query: `query($owner: SuiAddress!, $type: String!) {
-      address(address: $owner) { objects(filter: {type: $type}) { nodes { address } } }
-    }`,
-    variables: { owner: sender, type: TYPE },
-  }),
-  signal: AbortSignal.timeout(15000),
-})
-  .then((r) => r.json())
-  .then((r) => r?.data?.address?.objects?.nodes ?? [])
-  .catch(() => []);
+const GRAPHQL =
+  process.env.SUI_GRAPHQL_URL || `https://graphql.${network}.sui.io/graphql`;
+let existing;
+try {
+  const response = await fetch(GRAPHQL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `query($owner: SuiAddress!, $type: String!) {
+        address(address: $owner) { objects(filter: {type: $type}) { nodes { address } } }
+      }`,
+      variables: { owner: sender, type: TYPE },
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+  existing = existingProfiles(response, await response.json());
+} catch (error) {
+  console.error(
+    `\n${error.name === 'TimeoutError' ? 'Profile lookup timed out. No transaction was sent.' : error.message}`,
+  );
+  process.exit(1);
+}
 
 console.log(`network     ${network}`);
 console.log(`wallet      ${sender}`);
@@ -101,15 +111,21 @@ if (!suinsName) {
   process.exit(1);
 }
 if (have < GAS_BUDGET) {
-  console.error(`\nNot enough SUI for gas. Fund ${sender} from the testnet faucet.`);
+  console.error(
+    `\nNot enough SUI for gas. Fund ${sender} from the testnet faucet.`,
+  );
   process.exit(1);
 }
 if (existing.length) {
-  console.error(
-    `\nThis wallet already owns ${existing.length} profile(s) in the shared package.\n` +
-      'Registering again would add a duplicate to the directory.',
+  console.log(
+    `\nAlready registered: ${existing.length} profile(s) belong to this wallet. No transaction was sent.`,
   );
-  process.exit(1);
+  for (const profile of existing)
+    console.log(
+      `Profile: https://testnet.suivision.xyz/object/${profile.address}`,
+    );
+  console.log('Directory: https://suibasecampworkshop.pages.dev/agents');
+  process.exit(0);
 }
 
 const tx = new Transaction();
@@ -139,9 +155,23 @@ if (!execute) {
   process.exit(0);
 }
 
-const res = await client.signAndExecuteTransaction({ transaction: tx, signer: keypair });
-const digest = res?.transaction?.digest ?? res?.digest;
-await client.waitForTransaction({ digest });
+const res = await client.signAndExecuteTransaction({
+  transaction: tx,
+  signer: keypair,
+});
+const digest = successfulDigest(res);
+try {
+  await client.waitForTransaction({ result: res, timeout: 30000 });
+} catch {
+  console.log(`\nRegistered. Transaction ${digest}`);
+  console.log(
+    'The indexing check timed out; the transaction was executed. Check the directory shortly.',
+  );
+  console.log(`Explorer: https://testnet.suivision.xyz/tx/${digest}`);
+  process.exit(0);
+}
 console.log(`\nRegistered. Transaction ${digest}`);
-console.log('It appears in the directory once indexed, usually within a minute:');
+console.log(
+  'It appears in the directory once indexed, usually within a minute:',
+);
 console.log('  https://suibasecampworkshop.pages.dev/agents');
